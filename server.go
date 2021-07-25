@@ -21,22 +21,24 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-func sendFile(conn *websocket.Conn, filepath string) {
-	bf, err := os.Stat(filepath)
+func sendFile(conn *websocket.Conn, path string) {
+	base := strings.Split(path, "/")
+	basePath := strings.Join(base[:len(base)-1], "/") + "/"
+	bf, err := os.Stat(path)
 	if err != nil {
 		log.Printf("1===%v", err)
 	}
 	if bf.IsDir() {
-		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("dir %s", bf.Name())))
-		fs, err := ioutil.ReadDir(filepath)
+		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("dir %s", basePath+bf.Name())))
+		fs, err := ioutil.ReadDir(path)
 		if err != nil {
 			log.Printf("2===%v", err)
 		}
 		for _, f := range fs {
-			sendFile(conn, filepath+"/"+f.Name())
+			sendFile(conn, path+"/"+f.Name())
 		}
 	} else {
-		file, err := os.Open(filepath)
+		file, err := os.Open(path)
 		if err != nil {
 			log.Printf("3===%v", err)
 		}
