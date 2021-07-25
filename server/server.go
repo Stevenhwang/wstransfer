@@ -29,7 +29,14 @@ func sendFile(conn *websocket.Conn, path string) {
 		log.Printf("1===%v", err)
 	}
 	if bf.IsDir() {
-		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("dir %s", strings.ReplaceAll(basePath+bf.Name(), Folder, ""))))
+		needDir := strings.ReplaceAll(basePath+bf.Name(), Folder, "")
+		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("dir %s", needDir)))
+		for {
+			_, message, _ := conn.ReadMessage()
+			if string(message) == "dir "+needDir+" ok" {
+				break
+			}
+		}
 		fs, err := ioutil.ReadDir(path)
 		if err != nil {
 			log.Printf("2===%v", err)
@@ -43,9 +50,16 @@ func sendFile(conn *websocket.Conn, path string) {
 			log.Printf("3===%v", err)
 		}
 		defer file.Close()
-		buf := make([]byte, 4096)
-		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("file %s", strings.ReplaceAll(file.Name(), Folder, ""))))
+		needFile := strings.ReplaceAll(file.Name(), Folder, "")
+		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("file %s", needFile)))
+		for {
+			_, message, _ := conn.ReadMessage()
+			if string(message) == "file "+needFile+" ok" {
+				break
+			}
+		}
 		// read and write
+		buf := make([]byte, 4096)
 		for {
 			n, err := file.Read(buf)
 			if err == io.EOF {
