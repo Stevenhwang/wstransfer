@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"encoding/json"
@@ -105,7 +105,7 @@ func handleTransfer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func Start() {
 	http.HandleFunc("/", handleTransfer)
 	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }
