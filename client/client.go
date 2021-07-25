@@ -42,6 +42,7 @@ func Start() {
 			if mt == websocket.BinaryMessage {
 				f, _ := os.Create(nf)
 				f.Write(message)
+				defer f.Close()
 			}
 			log.Println(string(message))
 		}

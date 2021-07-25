@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -59,22 +58,28 @@ func sendFile(conn *websocket.Conn, path string) {
 			}
 		}
 		// read and write
-		buf := make([]byte, 4096)
-		for {
-			n, err := file.Read(buf)
-			if err == io.EOF {
-				fmt.Println("read finished")
-				return
-			}
-			if err != nil {
-				fmt.Println("read err:", err)
-				return
-			}
-			err = conn.WriteMessage(websocket.BinaryMessage, buf[:n])
-			if err != nil {
-				fmt.Println("conn.Write err:", err)
-				return
-			}
+		// buf := make([]byte, 4096)
+		// for {
+		// 	n, err := file.Read(buf)
+		// 	if err == io.EOF {
+		// 		fmt.Println("read finished")
+		// 		return
+		// 	}
+		// 	if err != nil {
+		// 		fmt.Println("read err:", err)
+		// 		return
+		// 	}
+		// 	err = conn.WriteMessage(websocket.BinaryMessage, buf[:n])
+		// 	if err != nil {
+		// 		fmt.Println("conn.Write err:", err)
+		// 		return
+		// 	}
+		// }
+		buf, _ := ioutil.ReadAll(file)
+		err = conn.WriteMessage(websocket.BinaryMessage, buf)
+		if err != nil {
+			fmt.Println("conn.Write err:", err)
+			return
 		}
 	}
 }
