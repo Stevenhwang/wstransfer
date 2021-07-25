@@ -2,7 +2,6 @@ package client
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -33,6 +32,5 @@ func Start() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		c.WriteMessage(websocket.TextMessage, []byte(scanner.Text()))
-		fmt.Println()
 	}
 }
